@@ -1,5 +1,20 @@
 #lang dssl2
 
+# HW4: Graph
+
+
+
+let eight_principles = ['Know your rights.',
+                        'Acknowledge your sources.',
+                        'Protect your work.',
+                        'Avoid suspicion.',
+                        'Do your own work.',
+                        'Never falsify a record or permit another person to do so.',
+                        'Never fabricate data, citations, or experimental results.',
+                        'Always tell the truth when discussing your work with your instructor.']
+
+
+
 
 
 import cons
@@ -101,7 +116,7 @@ class WUGraph (WUGRAPH):
         return self.n_vert
         
         
-    def n_edges(self) -> nat?:
+    def n_edges(self) -> nat?: # MAKE O(1)!
         return self.edge_count
 
         
@@ -134,7 +149,7 @@ class WUGraph (WUGRAPH):
         return adjs
         
    
-
+ #######--- Trying linked list.
     def get_all_edges(self) -> WEdgeList?:
         let count = 0
         let pairs = [None; 10*self.n_vertices()]
@@ -149,20 +164,29 @@ class WUGraph (WUGRAPH):
         
         
         for i in range(self.n_vert):
+            #println('%p', i)
+            #println('Looking at row ^')
             for j in range(self.n_vert):
-
+                #println('%p', j)
+                #println('Looking at col ^')
                 
                 let curr_pair = pair(i,j)
                 let opp_curr_pair = pair(j,i)
                 
                 
                 if self.adj_matrix[i][j] != None:
+                    #println('%p', curr_pair)
+                    #println('^ pair being counted')
                     if in_pairs(opp_curr_pair):
+                        #println('pair already found.')
                         pass
                         
                         
                     else:
-    
+                        #let old_vlist = self.vlist
+                        #println('%p', old_vlist)
+                        #self.vlist = cons(WEdge(i,j,self.adj_matrix[i][j]), old_vlist)
+                        #println('pair not already found')
                         edges[count] = WEdge(i, j, self.adj_matrix[i][j])
                         pairs[count] = pair(i, j)
                         count = count + 1
@@ -170,11 +194,15 @@ class WUGraph (WUGRAPH):
         let edge_count = 0
         for edge in edges:
             if edge != None:
+                #println('%p', edge)
+                #println('counted ^')
                 edge_count = edge_count + 1
                 
         let new_edges = [None;edge_count]
         for i in range(edge_count):
             new_edges[i] = edges[i]
+            #println('%p', new_edges[i])
+            #println('Edge above counted!')
             
         let edge_list = None
         for i in range(edge_count):
@@ -183,7 +211,34 @@ class WUGraph (WUGRAPH):
         return edge_list
         
         
+        
+        '''
+    def get_all_edges1(self) -> WEdgeList?:
+        let count = 0
+        #let pairs = [None; 2*self.n_vertices()]
+        
+        # in_pairs - check if edge between a vertex pair has already been counted.
+        def in_pairs(pair):
+            for element in pairs:
+                if element == pair:
+                    return True
+            return False
+        
+        
+        for i in range(self.n_vert):
+            for j in range(self.n_vert):
+                let curr_pair = pair(i,j)
+                let opp_curr_pair = pair(j,i)
+                if self.adj_matrix[i][j] != None:
+                    if in_pairs(opp_curr_pair):
+                        break
+                    else:
+                        #pairs[count] = pair(i, j, self.adj_matrix[i][j])
+                        count = count + 1
+                        
+        return [pair for pair in pairs if pair != None]
 
+        '''
         
     def print_matrix(self):
         println('%p', self.adj_matrix)
@@ -194,7 +249,10 @@ class WUGraph (WUGRAPH):
 ### List helpers
 ###
 
-
+# To test methods that return lists with elements in an unspecified
+# order, you can use these functions for sorting. Sorting these lists
+# will put their elements in a predictable order, order which you can
+# use when writing down the expected result part of your tests.
 
 # sort_vertices : ListOf[Vertex] -> ListOf[Vertex]
 # Sorts a list of numbers.
@@ -308,7 +366,7 @@ test 'get_all_edges test':
 ###
 
 def example_graph() -> WUGraph?:
-    let result = WUGraph(6)
+    let result = WUGraph(6) # 6-vertex graph from the assignment
     result.set_edge(0,1,12)
     result.set_edge(1,2,31)
     result.set_edge(1,3,56)
@@ -317,7 +375,7 @@ def example_graph() -> WUGraph?:
     result.set_edge(3,4,9)
     result.set_edge(3,5,1)
     return result
-
+#   ^ ADD YOUR WORK HERE
     
 #example_graph().print_matrix()
 
@@ -369,6 +427,10 @@ test 'home graph test':
     assert g.graph.get_edge(3,1) == 20
     assert g.graph.get_edge(4,1) == 7
     assert g.graph.get_edge(3,2) == 5
+    #println('get all edges')
+    #println('%p', g.graph.get_all_edges())
+    #println('get adjacent')
+    #println('%p', g.graph.get_adjacent(0))
     assert g.city_name_to_node_id.get('Westport') == 0
     assert g.city_name_to_node_id.get('Norwalk') == 1
     assert g.city_name_to_node_id.get('Fairfield') == 2
@@ -422,10 +484,12 @@ def dfs(graph: WUGRAPH!, start: Vertex?, f: FunC[Vertex?, AnyC]) -> NoneC:
 # Performs a depth-first search starting at `start` and returns a
 # list of all reachable vertices.
 #
-# This function uses the `dfs` function to build a list in the
+# This function uses your `dfs` function to build a list in the
 # order of the search. It will pass the test below if your dfs visits
 # each reachable vertex once, regardless of the order in which it calls
-# `f` on them.
+# `f` on them. However, you should test it more thoroughly than that
+# to make sure it is calling `f` (and thus exploring the graph) in
+# a correct order.
 def dfs_to_list(graph: WUGRAPH!, start: Vertex?) -> VertexList?:
     let list = None
     # Add to the front when we visit a node
@@ -437,8 +501,12 @@ def dfs_to_list(graph: WUGRAPH!, start: Vertex?) -> VertexList?:
 ### TESTING
 ###
 
+## You should test your code thoroughly. Here is one test to get you started:
 
 test 'dfs_to_list(example_graph())':
+    # Cons.from_vec is a convenience function from the `cons` library that
+    # allows you to write a vector (using the nice vector syntax), and get
+    # a linked list with the same elements.
     assert sort_vertices(dfs_to_list(example_graph(), 0)) \
         == Cons.from_vec([0, 1, 2, 3, 4, 5])
         
